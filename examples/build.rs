@@ -5,6 +5,7 @@ fn main() {
         .unwrap();
 
     tonic_build::compile_protos("proto/helloworld/helloworld.proto").unwrap();
+    tonic_build::compile_protos("proto/helloworld_json/helloworld_json.proto").unwrap();
     tonic_build::compile_protos("proto/echo/echo.proto").unwrap();
     tonic_build::compile_protos("proto/google/pubsub/pubsub.proto").unwrap();
 }
