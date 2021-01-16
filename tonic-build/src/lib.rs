@@ -84,6 +84,8 @@ mod prost;
 #[cfg_attr(docsrs, doc(cfg(feature = "prost")))]
 pub use prost::{compile_protos, configure, Builder};
 
+pub use json::{compile_protos_json};
+
 #[cfg(feature = "rustfmt")]
 #[cfg_attr(docsrs, doc(cfg(feature = "rustfmt")))]
 use std::io::{self, Write};
@@ -95,6 +97,8 @@ use std::process::{exit, Command};
 pub mod client;
 /// Service code generation for Server
 pub mod server;
+
+pub mod json;
 
 /// Service generation trait.
 ///
