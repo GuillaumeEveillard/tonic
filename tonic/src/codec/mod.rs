@@ -8,6 +8,7 @@ mod decode;
 mod encode;
 #[cfg(feature = "prost")]
 mod prost;
+mod json;
 
 use std::io;
 
@@ -16,6 +17,7 @@ pub(crate) use self::encode::{encode_client, encode_server};
 #[cfg(feature = "prost")]
 #[cfg_attr(docsrs, doc(cfg(feature = "prost")))]
 pub use self::prost::ProstCodec;
+pub use self::json::JsonCodec;
 use crate::Status;
 pub use buffer::{DecodeBuf, EncodeBuf};
 

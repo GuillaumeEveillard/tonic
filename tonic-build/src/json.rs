@@ -6,6 +6,7 @@ use std::path::{Path, PathBuf};
 use crate::{Service, Method};
 use std::fs::File;
 use std::io::Write;
+use quote::quote;
 
 pub fn compile_protos_json(proto: impl AsRef<Path>) -> io::Result<()> {
     let proto_path: &Path = proto.as_ref();
@@ -26,35 +27,37 @@ struct DummyService {
 }
 
 struct DummyMethod {
+    name: String,
+    identifier: String,
 
 }
 
 impl Method for DummyMethod {
-    const CODEC_PATH: &'static str = "";
+    const CODEC_PATH: &'static str = "tonic::codec::JsonCodec";
     type Comment = String;
 
     fn name(&self) -> &str {
-        unimplemented!()
+        return &self.name;
     }
 
     fn identifier(&self) -> &str {
-        unimplemented!()
+        return &self.identifier;
     }
 
     fn client_streaming(&self) -> bool {
-        unimplemented!()
+        false
     }
 
     fn server_streaming(&self) -> bool {
-        unimplemented!()
+        false
     }
 
     fn comment(&self) -> &[Self::Comment] {
-        unimplemented!()
+        &[]
     }
 
     fn request_response_name(&self, proto_path: &str) -> (TokenStream, TokenStream) {
-        unimplemented!()
+        (quote!{REQUEST}, quote!{RESPONSE})
     }
 }
 
@@ -72,7 +75,7 @@ impl Service for DummyService {
     }
 
     fn identifier(&self) -> &str {
-        return "id";
+        return "identifier";
     }
 
     fn methods(&self) -> &[Self::Method] {
@@ -91,11 +94,18 @@ pub fn compile<P>(
     where
         P: AsRef<Path>,
 {
+
+    // Il faut 3 choses
+    // - générer les struts (pas fait)
+    // - générer les implémentation server et client (fait)
+    // - le decoder json JsonCodec (fait)
+
+
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
 
     // let proto_path = protos.as_ref().to_str().unwrap();
 
-    let service = DummyService{methods: Vec::new(), comments: Vec::new()};
+    let service = DummyService{methods: vec![DummyMethod{name: "method1".to_string(), identifier: "id1".to_string()}], comments: Vec::new()};
 
     let it = protos.as_ref().into_iter();
 
