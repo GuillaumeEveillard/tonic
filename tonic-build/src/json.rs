@@ -57,7 +57,7 @@ impl Method for DummyMethod {
     }
 
     fn request_response_name(&self, proto_path: &str) -> (TokenStream, TokenStream) {
-        (quote!{REQUEST}, quote!{RESPONSE})
+        (quote!{super::HelloRequest}, quote!{super::HelloReply})
     }
 }
 
@@ -67,7 +67,7 @@ impl Service for DummyService {
     type Method = DummyMethod;
 
     fn name(&self) -> &str {
-        return "monservice";
+        return "JsonGreeter";
     }
 
     fn package(&self) -> &str {
@@ -100,6 +100,21 @@ pub fn compile<P>(
     // - générer les implémentation server et client (fait)
     // - le decoder json JsonCodec (fait)
 
+    let structs = quote! {
+        use serde::{Serialize, Deserialize};
+
+        /// The request message containing the user's name.
+        #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+        pub struct HelloRequest {
+            pub name: std::string::String,
+        }
+        /// The response message containing the greetings
+        #[derive(Debug, Default, Clone, PartialEq, Serialize, Deserialize)]
+        pub struct HelloReply {
+            pub message: std::string::String,
+        }
+    };
+
 
     let out_dir = PathBuf::from(std::env::var("OUT_DIR").unwrap());
 
@@ -114,10 +129,9 @@ pub fn compile<P>(
         let server = server::generate(&service, &proto_path);
         let client = client::generate(&service, &proto_path);
 
-        let mut file = File::create(out_dir.join("mon-server-stp.rs"))?;
+        let mut file = File::create(out_dir.join("helloworld_json.rs"))?;
+        file.write_all(structs.to_string().as_bytes())?;
         file.write_all(server.to_string().as_bytes())?;
-
-        let mut file = File::create(out_dir.join("mon-client-stp.rs"))?;
         file.write_all(client.to_string().as_bytes())?;
     }
 

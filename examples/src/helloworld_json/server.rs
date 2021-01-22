@@ -1,6 +1,6 @@
 use tonic::{transport::Server, Request, Response, Status};
 
-use hello_world_json::greeter_server::{Greeter, GreeterServer};
+use hello_world_json::json_greeter_server::{JsonGreeter, JsonGreeterServer};
 use hello_world_json::{HelloReply, HelloRequest};
 
 pub mod hello_world_json {
@@ -11,8 +11,8 @@ pub mod hello_world_json {
 pub struct MyGreeter {}
 
 #[tonic::async_trait]
-impl Greeter for MyGreeter {
-    async fn say_hello(
+impl JsonGreeter for MyGreeter {
+    async fn method1(
         &self,
         request: Request<HelloRequest>,
     ) -> Result<Response<HelloReply>, Status> {
@@ -33,7 +33,7 @@ async fn main() -> Result<(), Box<dyn std::error::Error>> {
     println!("GreeterServer listening on {}", addr);
 
     Server::builder()
-        .add_service(GreeterServer::new(greeter))
+        .add_service(JsonGreeterServer::new(greeter))
         .serve(addr)
         .await?;
 
