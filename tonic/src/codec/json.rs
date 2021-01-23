@@ -45,16 +45,8 @@ impl<T: Send + Sync + Serialize/*: Message*/> Encoder for JsonEncoder<T> {
     type Error = Status;
 
     fn encode(&mut self, item: Self::Item, buf: &mut EncodeBuf<'_>) -> Result<(), Self::Error> {
-        // Convert the Point to a JSON string.
         let serialized = serde_json::to_string(&item).unwrap();
         buf.put(serialized.into_bytes().as_slice());
-
-        // Prints serialized = {"x":1,"y":2}
-        // println!("serialized = {}", serialized);
-
-        // Convert the JSON string back to a Point.
-        // let deserialized: Point = serde_json::from_str(&serialized).unwrap();
-
         Ok(())
     }
 }
@@ -68,14 +60,13 @@ impl<U: /*Message + */Default + DeserializeOwned> Decoder for JsonDecoder<U> {
     type Error = Status;
 
     fn decode(&mut self, buf: &mut DecodeBuf<'_>) -> Result<Option<Self::Item>, Self::Error> {
-
-        let json = String::from_utf8_lossy(buf.chunk());
-        let deserialized: U = serde_json::from_str(&json.clone()).unwrap();
-        // let item = Message::decode(buf)
-        //     .map(Option::Some)
-        //     .map_err(from_decode_error)?;
-
-        // Ok(item)
+        let r = buf.remaining();
+        let deserialized: U = {
+            let chunk = buf.chunk();
+            let json = String::from_utf8_lossy(chunk);
+            serde_json::from_str(&json.clone()).unwrap()
+        };
+        buf.advance(r);
         Ok(Option::Some(deserialized))
     }
 }
